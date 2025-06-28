@@ -107,8 +107,10 @@ project file/
 
 ### Screenshots
 
-![Home Page]
-![Booking Page]
+![Home Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Home.png)
+![Signin Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Signin.png)
+![Signup Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Signup.png)
+![Flights Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Flights.png)
 
 ## Contributing
 
