@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FlightFinder - Payment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(120deg, #ffecd2 0%, #fcb69f 100%);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .header {
+      width: 100%;
+      background: #fff;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      padding: 0;
+      margin-bottom: 40px;
+    }
+    .header-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+    }
+    .logo {
+      font-size: 26px;
+      font-weight: 700;
+      color: #ff6b35;
+      letter-spacing: 1px;
+    }
+    .stepper {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+    .step {
+      font-size: 15px;
+      color: #ff6b35;
+      font-weight: 600;
+      opacity: 0.7;
+    }
+    .step.active {
+      color: #222;
+      opacity: 1;
+      border-bottom: 2px solid #ff6b35;
+      padding-bottom: 2px;
+    }
+    .main-card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+      max-width: 420px;
+      width: 100%;
+      margin: 0 auto 32px auto;
+      padding: 36px 32px 28px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .main-card h2 {
+      margin: 0 0 18px 0;
+      font-size: 24px;
+      color: #ff6b35;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .flight-summary {
+      width: 100%;
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 18px 18px 12px 18px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      font-size: 15px;
+      color: #333;
+    }
+    .flight-summary strong {
+      color: #ff6b35;
+    }
+    .payment-form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+    .payment-form input, .payment-form select {
+      padding: 13px 12px;
+      border-radius: 8px;
+      border: 1.5px solid #e5e7eb;
+      font-size: 15px;
+      background: #fff;
+      transition: border-color 0.3s;
+    }
+    .payment-form input:focus, .payment-form select:focus {
+      border-color: #ff6b35;
+      outline: none;
+    }
+    .payment-form button {
+      background: #ff6b35;
+      color: #fff;
+      border: none;
+      padding: 14px 0;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.3s;
+      letter-spacing: 1px;
+    }
+    .payment-form button:hover {
+      background: #e5552a;
+    }
+    .payment-form button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .payment-options {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .payment-icon {
+      font-size: 22px;
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 6px 10px;
+      color: #ff6b35;
+      border: 1.5px solid #f3f4f6;
+    }
+    .confirmation {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #e6fff3;
+      border-radius: 14px;
+      padding: 28px 18px;
+      margin-top: 18px;
+      color: #00a86b;
+      font-size: 18px;
+      font-weight: 600;
+      animation: fadeIn 1s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .confirmation .checkmark {
+      font-size: 48px;
+      margin-bottom: 10px;
+      color: #00a86b;
+      animation: pop 0.6s;
+    }
+    .error-message {
+      background: #ffe6e6;
+      color: #d32f2f;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-size: 14px;
+      display: none;
+    }
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    @keyframes pop {
+      0% { transform: scale(0.5);}
+      70% { transform: scale(1.2);}
+      100% { transform: scale(1);}
+    }
+    .stepper .step {
+      text-decoration: none;
+      color: #ff6b35;
+      font-weight: 600;
+      opacity: 0.7;
+      font-size: 15px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      transition: color 0.2s;
+      padding-bottom: 2px;
+    }
+    .stepper .step.active {
+      color: #222;
+      opacity: 1;
+      border-bottom: 2px solid #ff6b35;
+      pointer-events: none;
+    }
+    .stepper .step:not(.active):hover {
+      color: #e5552a;
+      opacity: 1;
+    }
+    @media (max-width: 600px) {
+      .main-card {
+        padding: 18px 6px 18px 6px;
+      }
+      .header-content {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">FlightFinder</div>
+      <div class="stepper">
+        <a class="step" href="app.html">Search</a>
+        <a class="step" href="flights.html">Select</a>
+        <span class="step active">Payment</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-card">
+    <h2>Confirm & Pay</h2>
+    <div id="details-section">
+      <div class="flight-summary" id="flight-summary">
+        <!-- Flight details will be injected here -->
+      </div>
+      <div id="price-details" style="width:100%; background:#f9fafb; border-radius:10px; padding:16px; margin-top:16px; font-size:14px; color:#333;">
+        <!-- Price details will be injected here -->
+      </div>
+    </div>
+    
+    <div class="error-message" id="error-message"></div>
+    
+    <form class="payment-form" id="payment-form">
+      <input type="text" id="fullName" placeholder="Full Name" required />
+      <input type="email" id="email" placeholder="Email Address" required />
+      <select id="paymentMethod" required>
+        <option value="">Select Payment Method</option>
+        <option value="upi">UPI</option>
+        <option value="card">Credit/Debit Card</option>
+        <option value="wallet">Wallet</option>
+        <option value="netbanking">Net Banking</option>
+      </select>
+      <!-- Offers Section Start -->
+      <div class="offers-section" style="background:#f9fafb; border-radius:10px; padding:16px; margin-bottom:10px;">
+        <div style="font-weight:600; color:#ff6b35; margin-bottom:8px;">Available Offers</div>
+        <ul style="margin:0 0 10px 18px; padding:0; color:#333; font-size:14px;">
+          <li>Get ₹500 off with code <b>FLY500</b> (min. booking ₹5000)</li>
+          <li>10% cashback on UPI payments (max ₹300)</li>
+          <li>Extra 5% off for new users: <b>NEW5</b></li>
+        </ul>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="text" id="offerCode" placeholder="Enter offer code" style="flex:1; padding:8px; border-radius:6px; border:1.5px solid #e5e7eb; font-size:14px;" />
+          <button type="button" id="applyOfferBtn" style="background:#ff6b35; color:#fff; border:none; border-radius:6px; padding:8px 16px; font-weight:600; cursor:pointer;">Apply</button>
+        </div>
+        <div id="offerMessage" style="margin-top:8px; font-size:13px; color:#28a745; display:none;"></div>
+      </div>
+      <!-- Offers Section End -->
+      <div class="payment-options">
+        <span class="payment-icon" title="Card">💳</span>
+        <span class="payment-icon" title="UPI">📱</span>
+        <span class="payment-icon" title="Net Banking">🏦</span>
+        <span class="payment-icon" title="Cash">💵</span>
+      </div>
+      <button type="submit" id="payBtn">Pay & Book</button>
+    </form>
+    <div class="confirmation" id="confirmation">
+      <span class="checkmark">✅</span>
+      Booking Confirmed!<br>
+      Your ticket has been sent to your email.<br>
+      <button id="goHomeBtn" style="margin-top:18px; background:#ff6b35; color:#fff; border:none; border-radius:8px; padding:10px 24px; font-size:15px; font-weight:600; cursor:pointer;">
+        Go to Home
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Initialize variables
+    let flight = null;
+    let travelClass = 'economy';
+    let passengers = 1;
+    let selectedSeats = [];
+    let totalPrice = 0;
+
+    // Function to show error message
+    function showError(message) {
+      const errorDiv = document.getElementById('error-message');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      setTimeout(() => {
+        errorDiv.style.display = 'none';
+      }, 5000);
+    }
+
+    // Function to set loading state
+    function setLoading(isLoading) {
+      const form = document.getElementById('payment-form');
+      const payBtn = document.getElementById('payBtn');
+      
+      if (isLoading) {
+        form.classList.add('loading');
+        payBtn.disabled = true;
+        payBtn.textContent = 'Processing...';
+      } else {
+        form.classList.remove('loading');
+        payBtn.disabled = false;
+        payBtn.textContent = 'Pay & Book';
+      }
+    }
+
+    // Load data from localStorage with error handling
+    function loadBookingData() {
+      try {
+        // Get flight data
+        const flightData = localStorage.getItem('selectedFlight');
+        if (!flightData) {
+          throw new Error('No flight selected. Please go back and select a flight.');
+        }
+        flight = JSON.parse(flightData);
+
+        // Get other booking details
+        travelClass = localStorage.getItem('selectedClass') || 'economy';
+        passengers = parseInt(localStorage.getItem('selectedPassengers') || '1', 10);
+        
+        // Get selected seats
+        const seatsData = localStorage.getItem('selectedSeats');
+        if (!seatsData) {
+          throw new Error('No seats selected. Please go back and select your seats.');
+        }
+        selectedSeats = JSON.parse(seatsData);
+
+        if (!Array.isArray(selectedSeats) || selectedSeats.length === 0) {
+          throw new Error('No valid seats selected. Please go back and select your seats.');
+        }
+
+        return true;
+      } catch (error) {
+        showError(error.message);
+        return false;
+      }
+    }
+
+    // Calculate pricing
+    function calculatePrice() {
+      function getClassMultiplier(travelClass) {
+        if (travelClass === 'business') return 2;
+        if (travelClass === 'first') return 3;
+        return 1; // economy
+      }
+
+      const basePrice = flight.price || 0;
+      const multiplier = getClassMultiplier(travelClass);
+      totalPrice = basePrice * multiplier * passengers;
+      
+      return totalPrice;
+    }
+
+    // Display booking details
+    function displayBookingDetails() {
+      // Show price details
+      document.getElementById('price-details').innerHTML = `
+        <div>Base Price: ₹${flight.price}</div>
+        <div>Class: <b>${travelClass.charAt(0).toUpperCase() + travelClass.slice(1)}</b> (${getClassMultiplier(travelClass)}x)</div>
+        <div>Passengers: <b>${passengers}</b></div>
+        <div>Selected Seats: <b>${selectedSeats.join(', ')}</b></div>
+        <div style="font-size:18px;margin-top:8px;border-top:1px solid #ddd;padding-top:8px;">
+          <strong>Total: ₹${totalPrice}</strong>
+        </div>
+      `;
+
+      // Show flight summary
+      const summary = document.getElementById("flight-summary");
+      summary.innerHTML = `
+        <div><strong>${flight.airline}</strong> (${flight.flightNumber})</div>
+        <div>${flight.from} <span style="color:#ff6b35;">&#8594;</span> ${flight.to}</div>
+        <div>Departure: <b>${new Date(flight.departure).toLocaleString()}</b></div>
+        <div>Arrival: <b>${new Date(flight.arrival).toLocaleString()}</b></div>
+        <div>Seats Available: <b>${flight.seatsAvailable}</b></div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #ddd;">
+          Selected Seats: <b style="color:#ff6b35;">${selectedSeats.join(', ')}</b>
+        </div>
+      `;
+    }
+
+    function getClassMultiplier(travelClass) {
+      if (travelClass === 'business') return 2;
+      if (travelClass === 'first') return 3;
+      return 1; // economy
+    }
+
+    // Validate booking before submission
+    function validateBooking() {
+      if (!flight || !flight._id) {
+        throw new Error('Invalid flight data');
+      }
+      
+      if (!selectedSeats || selectedSeats.length === 0) {
+        throw new Error('No seats selected');
+      }
+
+      if (selectedSeats.length !== passengers) {
+        throw new Error(`Number of selected seats (${selectedSeats.length}) doesn't match number of passengers (${passengers})`);
+      }
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Please sign in to complete booking');
+      }
+
+      return token;
+    }
+
+    // Handle form submission
+    function handlePayment(e) {
+      e.preventDefault();
+      
+      try {
+        const token = validateBooking();
+        
+        // Validate form fields
+        const fullName = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const paymentMethod = document.getElementById('paymentMethod').value;
+
+        if (!fullName || !email || !paymentMethod) {
+          throw new Error('Please fill in all required fields');
+        }
+
+        setLoading(true);
+
+        // Get reservation ID if available
+        const reservationId = localStorage.getItem('seatReservationId');
+
+        // Prepare booking data
+        const bookingData = {
+          flightId: flight._id,
+          seats: selectedSeats.length,
+          selectedSeats: selectedSeats,
+          reservationId: reservationId, // Include reservation ID
+          passengerDetails: {
+            fullName: fullName,
+            email: email
+          },
+          paymentMethod: paymentMethod,
+          totalAmount: totalPrice,
+          travelClass: travelClass
+        };
+
+        console.log('Submitting booking:', bookingData);
+
+        // First, verify seat availability before booking
+        fetch(`http://localhost:5000/api/flights/${flight._id}/verify-seats`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            selectedSeats: selectedSeats,
+            reservationId: reservationId
+          })
+        })
+        .then(response => response.json())
+        .then(verificationData => {
+          if (!verificationData.available) {
+            throw new Error(`Seats ${verificationData.unavailableSeats?.join(', ') || selectedSeats.join(', ')} are no longer available. Please select different seats.`);
+          }
+          
+          // If seats are available, proceed with booking
+          return fetch('http://localhost:5000/api/bookings', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(bookingData)
+          });
+        })
+        .then(response => {
+          console.log('Response status:', response.status);
+          return response.json().then(data => ({
+            status: response.status,
+            data: data
+          }));
+        })
+        .then(({ status, data }) => {
+          console.log('Response data:', data);
+          
+          if (status === 200 || status === 201) {
+            if (data.booking) {
+              // Success
+              document.getElementById('payment-form').style.display = "none";
+              document.getElementById('confirmation').style.display = "flex";
+              document.getElementById('details-section').style.display = "none";
+              
+              // Clear booking data from localStorage
+              localStorage.removeItem('selectedSeats');
+              localStorage.removeItem('selectedFlight');
+              localStorage.removeItem('selectedClass');
+              localStorage.removeItem('selectedPassengers');
+              localStorage.removeItem('seatReservationId');
+            } else {
+              throw new Error(data.message || 'Booking failed - invalid response');
+            }
+          } else {
+            throw new Error(data.message || `Booking failed with status ${status}`);
+          }
+        })
+        .catch(error => {
+          console.error('Booking error:', error);
+          showError(error.message || 'Booking failed due to network/server error');
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+
+      } catch (error) {
+        console.error('Validation error:', error);
+        showError(error.message);
+        setLoading(false);
+      }
+    }
+
+    // Initialize the page
+    function initializePage() {
+      if (loadBookingData()) {
+        calculatePrice();
+        displayBookingDetails();
+        
+        // Add event listeners
+        document.getElementById("payment-form").addEventListener("submit", handlePayment);
+        
+        // Offer code logic
+        const offers = {
+          FLY500: { valid: true, message: "₹500 off applied!" },
+          NEW5: { valid: true, message: "5% off for new users applied!" }
+        };
+        
+        document.getElementById("applyOfferBtn").onclick = function() {
+          const code = document.getElementById("offerCode").value.trim().toUpperCase();
+          const msg = document.getElementById("offerMessage");
+          if (offers[code]) {
+            msg.style.display = "block";
+            msg.style.color = "#28a745";
+            msg.textContent = offers[code].message;
+          } else if (code) {
+            msg.style.display = "block";
+            msg.style.color = "#d32f2f";
+            msg.textContent = "Invalid or expired offer code.";
+          } else {
+            msg.style.display = "none";
+          }
+        };
+
+        // Go to Home button logic
+        document.getElementById("goHomeBtn").onclick = function() {
+          window.location.href = "app.html";
+        };
+      } else {
+        // Disable form if data loading failed
+        document.getElementById('payment-form').style.display = 'none';
+      }
+    }
+
+    // Start the application
+    document.addEventListener('DOMContentLoaded', initializePage);
+  </script>
+</body>
+</html>

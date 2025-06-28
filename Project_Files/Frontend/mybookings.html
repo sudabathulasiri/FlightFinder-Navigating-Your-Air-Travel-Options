@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Bookings - FlightFinder</title>
+  <style>
+    body { font-family: sans-serif; background: #f9fafb; margin: 0; }
+    .container { max-width: 700px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #0001; padding: 32px; }
+    h2 { color: #b983ff; }
+    .booking-card { border-bottom: 1px solid #eee; padding: 18px 0; }
+    .booking-card:last-child { border-bottom: none; }
+    .flight-title { font-weight: bold; color: #7f53ac; }
+    .flight-info { margin: 6px 0 0 0; color: #444; }
+    .cancel-btn {
+  background: #d32f2f;
+  color: #fff;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.cancel-btn:hover {
+  background: #b71c1c;
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>My Bookings</h2>
+    <div id="bookings"></div>
+  </div>
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) {
+      document.getElementById('bookings').innerHTML = '<p>Please <a href="signin.html">sign in</a> to view your bookings.</p>';
+    } else {
+      fetch('http://localhost:5000/api/bookings/my', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(res => res.json())
+      .then(bookings => {
+        if (!Array.isArray(bookings) || bookings.length === 0) {
+          document.getElementById('bookings').innerHTML = '<p>No bookings found.</p>';
+        } else {
+          document.getElementById('bookings').innerHTML = bookings.map(b => `
+            <div class="booking-card" id="booking-${b._id}">
+              <div class="flight-title">${b.flight.airline} (${b.flight.flightNumber})</div>
+              <div class="flight-info">${b.flight.from} ➡️ ${b.flight.to}</div>
+              <div class="flight-info">Departure: ${new Date(b.flight.departure).toLocaleString()}</div>
+              <div class="flight-info">Seats Booked: ${b.seats} (${b.selectedSeats ? b.selectedSeats.join(', ') : ''})</div>
+              <div class="flight-info">Booked At: ${new Date(b.bookedAt).toLocaleString()}</div>
+              <button class="cancel-btn" onclick="cancelBooking('${b._id}')">Cancel Ticket</button>
+            </div>
+          `).join('');
+        }
+      })
+      .catch(() => {
+        document.getElementById('bookings').innerHTML = '<p style="color:red;">Could not load bookings.</p>';
+      });
+    }
+
+    function cancelBooking(bookingId) {
+      if (!confirm('Are you sure you want to cancel this booking?')) return;
+      fetch(`http://localhost:5000/api/bookings/${bookingId}/cancel`, {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById(`booking-${bookingId}`).remove();
+          alert('Booking cancelled successfully.');
+        } else {
+          alert(data.message || 'Could not cancel booking.');
+        }
+      })
+      .catch(() => alert('Could not cancel booking.'));
+    }
+  </script>
+</body>
+</html>

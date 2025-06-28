@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - FlightFinder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(120deg, #ffecd2 0%, #fcb69f 100%);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: #222;
+    }
+    .header {
+      width: 100%;
+      background: #fff;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      margin-bottom: 40px;
+    }
+    .header-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+    }
+    .logo {
+      font-size: 26px;
+      font-weight: 700;
+      color: #ff6b35;
+      letter-spacing: 1px;
+    }
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 32px;
+    }
+    .nav-links a {
+      color: #222;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.3s;
+    }
+    .nav-links a:hover {
+      opacity: 0.7;
+    }
+    .auth-buttons {
+      display: flex;
+      gap: 12px;
+    }
+    .signin-btn, .signup-btn {
+      padding: 8px 20px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    .signin-btn {
+      color: #ff6b35;
+      border: 1px solid #ff6b35;
+      background: #fff;
+    }
+    .signup-btn {
+      background: #ff6b35;
+      color: #fff;
+    }
+    .signin-btn:hover {
+      background: #ff6b35;
+      color: #fff;
+    }
+    .signup-btn:hover {
+      background: #e5552a;
+    }
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 30px;
+      margin-bottom: 60px;
+    }
+    .login-card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+      max-width: 370px;
+      width: 100%;
+      padding: 36px 32px 28px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    .login-card h2 {
+      margin: 0 0 18px 0;
+      font-size: 24px;
+      color: #ff6b35;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .login-form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .login-form input {
+      padding: 13px 12px;
+      border-radius: 8px;
+      border: 1.5px solid #e5e7eb;
+      font-size: 15px;
+      background: #f9fafb;
+      transition: border-color 0.3s;
+    }
+    .login-form input:focus {
+      border-color: #ff6b35;
+      outline: none;
+    }
+    .login-form button {
+      background: #ff6b35;
+      color: #fff;
+      border: none;
+      padding: 14px 0;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.3s;
+      letter-spacing: 1px;
+    }
+    .login-form button:hover {
+      background: #e5552a;
+    }
+    .login-links {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .login-links a {
+      color: #ff6b35;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .login-links a:hover {
+      color: #e5552a;
+    }
+    /* Testimonials */
+    .reviews-section {
+      padding: 40px 0 0 0;
+      background: none;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .reviews-section h2 {
+      text-align: center;
+      margin-bottom: 32px;
+      color: #ff6b35;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 28px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .review-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 22px 18px;
+      text-align: left;
+    }
+    .review-text {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .review-author {
+      font-weight: 600;
+      color: #ff6b35;
+    }
+    .review-rating {
+      color: #fbbf24;
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+    /* FAQ Section */
+    .faq-section {
+      padding: 40px 0 60px 0;
+      background: none;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .faq-section h2 {
+      text-align: center;
+      margin-bottom: 32px;
+      color: #ff6b35;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .faq-list {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .faq-item {
+      margin-bottom: 18px;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 18px 22px;
+    }
+    .faq-question {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .faq-answer {
+      color: #555;
+    }
+    @media (max-width: 600px) {
+      .header-content {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px 6px;
+      }
+      .login-card {
+        padding: 18px 6px 18px 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">FlightFinder</div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="app.html">Home</a></li>
+          <li><a href="flights.html">Flights</a></li>
+          <li><a href="offers.html">Offers</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="support.html">Support</a></li>
+        </ul>
+      </nav>
+      <div class="auth-buttons">
+        <a href="signin.html" class="signin-btn">Sign in</a>
+        <a href="signup.html" class="signup-btn">Sign up</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <div class="login-card">
+      <h2>Sign in to FlightFinder</h2>
+      <form class="login-form" id="loginForm">
+        <input type="text" placeholder="Username or Email" required />
+        <input type="password" placeholder="Password" required />
+        <button type="submit">Sign In</button>
+        <div class="login-links">
+          <a href="forgot-password.html">Forgot password?</a>
+          <a href="signup.html">Create account</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Testimonials Section -->
+  <section class="reviews-section">
+    <h2>What Our Users Say</h2>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="review-rating">★★★★★</div>
+        <div class="review-text">"Super easy to book and great deals!"</div>
+        <div class="review-author">- Priya S., Mumbai</div>
+      </div>
+      <div class="review-card">
+        <div class="review-rating">★★★★☆</div>
+        <div class="review-text">"Customer support was quick and helpful."</div>
+        <div class="review-author">- Rahul K., Delhi</div>
+      </div>
+      <div class="review-card">
+        <div class="review-rating">★★★★★</div>
+        <div class="review-text">"Loved the getaway ideas for the holidays!"</div>
+        <div class="review-author">- Amit P., Pune</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq-section">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-question">How do I reset my password?</div>
+        <div class="faq-answer">Click "Forgot password?" above and follow the instructions to reset your password.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Can I use my email to sign in?</div>
+        <div class="faq-answer">Yes, you can use either your username or your registered email address.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Is my information secure?</div>
+        <div class="faq-answer">Absolutely! We use bank-level encryption to keep your data safe.</div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+document.getElementById("loginForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  // Get the values from the form inputs
+  const email = this.querySelector('input[type="text"]').value;
+  const password = this.querySelector('input[type="password"]').value;
+
+  // Send login request to backend
+  const res = await fetch("http://localhost:5000/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+
+  const data = await res.json();
+  if (res.ok && data.token) {
+    localStorage.setItem("token", data.token); // Save JWT for future requests
+    if (data.role === "admin") {
+      window.location.href = "admin.html"; // Redirect admin to admin panel
+    } else {
+      window.location.href = "app.html"; // Redirect user to homepage
+    }
+  } else {
+    alert(data.message || "Login failed");
+  }
+});
+</script>
+
+</body>
+</html>

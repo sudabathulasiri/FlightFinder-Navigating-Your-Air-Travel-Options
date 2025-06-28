@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Profile - FlightFinder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      margin: 0;
+      color: #222;
+    }
+    .header {
+      background: #fff;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      margin-bottom: 40px;
+    }
+    .header-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+    }
+    .logo {
+      font-size: 26px;
+      font-weight: 700;
+      color: #ff6b35;
+      letter-spacing: 1px;
+    }
+    .profile-card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      max-width: 420px;
+      margin: 48px auto 0 auto;
+      padding: 36px 32px 28px 32px;
+      text-align: center;
+    }
+    .profile-icon {
+      font-size: 48px;
+      background: #fff3ed;
+      color: #ff6b35;
+      border-radius: 50%;
+      padding: 18px;
+      margin-bottom: 18px;
+      display: inline-block;
+    }
+    .profile-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .profile-email {
+      color: #555;
+      font-size: 1rem;
+      margin-bottom: 18px;
+    }
+    .profile-info {
+      text-align: left;
+      margin: 0 auto 18px auto;
+      max-width: 320px;
+    }
+    .profile-info div {
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+    .logout-btn {
+      background: #ff6b35;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 18px;
+      transition: background 0.2s;
+    }
+    .logout-btn:hover {
+      background: #e5552a;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 24px;
+      color: #ff6b35;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 15px;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    .profile-menu {
+      position: relative;
+      display: inline-block;
+    }
+    .profile-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 10px 0;
+      min-width: 120px;
+      z-index: 100;
+    }
+    .profile-dropdown a {
+      display: block;
+      padding: 8px 18px;
+      color: #222;
+      text-decoration: none;
+    }
+    .profile-dropdown a:hover {
+      background: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">FlightFinder</div>
+      <a href="app.html" class="back-link">← Back to Home</a>
+    </div>
+  </header>
+  <div class="profile-card" id="profileCard">
+    <span class="profile-icon">👤</span>
+    <div class="profile-name" id="profileName">Loading...</div>
+    <div class="profile-email" id="profileEmail"></div>
+    <div class="profile-info" id="profileInfo"></div>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  </div>
+  <script>
+    window.addEventListener('DOMContentLoaded', async function() {
+  const token = localStorage.getItem('token');
+  const authButtons = document.querySelector('.auth-buttons');
+  if (token && authButtons) {
+    // Fetch user info
+    let displayName = "Profile";
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/me", {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      if (res.ok) {
+        const user = await res.json();
+        displayName = user.fullName || user.username || user.email || "Profile";
+      }
+    } catch (e) {
+      // fallback to default
+    }
+
+    // Replace auth buttons with profile menu
+    authButtons.innerHTML = `
+      <div class="profile-menu" style="position:relative;">
+        <span class="profile-icon" style="font-size:22px;vertical-align:middle;cursor:pointer;">👤</span>
+        <span class="profile-name" style="margin-left:8px;font-weight:600;color:#222;">${displayName}</span>
+        <div class="profile-dropdown" style="display:none;position:absolute;right:0;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:10px 0;min-width:120px;z-index:100;">
+          <a href="profile.html" style="display:block;padding:8px 18px;color:#222;text-decoration:none;">My Profile</a>
+          <a href="mybookings.html" style="display:block;padding:8px 18px;color:#222;text-decoration:none;">My Bookings</a>
+          <a href="#" id="logoutBtn" style="display:block;padding:8px 18px;color:#ff6b35;text-decoration:none;">Logout</a>
+        </div>
+      </div>
+    `;
+
+    // Show/hide dropdown on icon click
+    const profileMenu = authButtons.querySelector('.profile-menu');
+    const dropdown = authButtons.querySelector('.profile-dropdown');
+    profileMenu.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    });
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function() {
+      dropdown.style.display = 'none';
+    });
+    // Logout functionality
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem('token');
+      window.location.reload();
+    });
+  }
+});
+
+    // Fetch user info from backend using token
+    async function loadProfile() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = "signin.html";
+        return;
+      }
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/me", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (!res.ok) throw new Error("Not authorized");
+        const user = await res.json();
+        document.getElementById('profileName').textContent = user.fullName || user.name || user.username || "User";
+        document.getElementById('profileEmail').textContent = user.email || "";
+        document.getElementById('profileInfo').innerHTML = `
+          <div><b>Username:</b> ${user.username || "-"}</div>
+          <div><b>Date of Birth:</b> ${user.dob ? new Date(user.dob).toLocaleDateString() : "-"}</div>
+          <div><b>Phone:</b> ${user.countryCode ? user.countryCode + " " : ""}${user.phone || "-"}</div>
+        `;
+      } catch (err) {
+        document.getElementById('profileName').textContent = "Not logged in";
+        document.getElementById('profileEmail').textContent = "";
+        document.getElementById('profileInfo').innerHTML = `<div>Please <a href="signin.html">sign in</a> again.</div>`;
+      }
+    }
+
+    document.getElementById('logoutBtn').onclick = function() {
+      localStorage.removeItem('token');
+      window.location.href = "signin.html";
+    };
+
+    loadProfile();
+  </script>
+</body>
+</html>

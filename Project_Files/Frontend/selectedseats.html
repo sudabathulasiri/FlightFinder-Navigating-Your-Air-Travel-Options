@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Seat Selection - FlightFinder</title>
+  <style>
+    body { font-family: sans-serif; background: #f9fafb; margin: 0; }
+    .container { max-width: 500px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #0001; padding: 32px; }
+    h2 { color: #b983ff; }
+    .seat-map { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0; }
+    .seat-btn {
+      min-width: 48px; min-height: 48px; border-radius: 6px; border: none;
+      background: #b983ff; color: #fff; font-weight: bold; font-size: 16px; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .seat-btn.selected { background: #7f53ac; }
+    .seat-btn.booked { background: #ccc; color: #888; cursor: not-allowed; }
+    .seat-btn.reserved { background: #ff9800; color: #fff; cursor: not-allowed; }
+    .seat-btn.checking { background: #ffd54f; opacity: 0.7; cursor: wait; }
+    .actions { margin-top: 24px; }
+    .actions button { background: #b983ff; color: #fff; border: none; border-radius: 6px; padding: 10px 24px; font-size: 16px; cursor: pointer; }
+    .actions button:disabled { background: #ccc; cursor: not-allowed; }
+    .msg { margin-top: 18px; font-weight: bold; }
+    .error { color: #d32f2f; }
+    .success { color: #2e7d32; }
+    .warning { color: #f57c00; }
+    .seat-legend {
+      display: flex;
+      gap: 15px;
+      margin: 15px 0;
+      font-size: 14px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+    }
+    .refresh-btn {
+      background: #ff6b35;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-left: 10px;
+      font-size: 14px;
+    }
+    .reserve-note {
+      background: #fffbe6;
+      color: #b98300;
+      border: 1px solid #ffe58f;
+      border-radius: 7px;
+      padding: 10px 16px;
+      margin: 10px 0 18px 0;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Select Your Seats</h2>
+    <div id="flightInfo"></div>
+
+    <!-- Add this note -->
+    <div class="reserve-note" style="background:#fffbe6; color:#b98300; border:1px solid #ffe58f; border-radius:7px; padding:10px 16px; margin:10px 0 18px 0; font-size:15px;">
+      <b>Note:</b> Please <b>reserve</b> your selected seats before proceeding to payment. You cannot pay until your seats are reserved.
+    </div>
+    
+    <div class="seat-legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background: #b983ff;"></div>
+        <span>Available</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #7f53ac;"></div>
+        <span>Selected</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #ccc;"></div>
+        <span>Booked</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #ff9800;"></div>
+        <span>Reserved</span>
+      </div>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <span>Real-time seat availability</span>
+      <button class="refresh-btn" onclick="refreshSeatMap()">🔄 Refresh</button>
+    </div>
+    
+    <form id="seatForm">
+      <div class="seat-map" id="seatMap"></div>
+      <div class="actions">
+        <button type="button" id="reserveBtn" disabled onclick="reserveSeats()">Reserve Selected Seats</button>
+        <button type="button" id="proceedBtn" disabled onclick="proceedToPayment()" style="background: #ff6b35; margin-left: 10px;">Proceed to Payment</button>
+      </div>
+      <div class="msg" id="msg"></div>
+    </form>
+  </div>
+  
+  <script>
+    // --- CONFIG ---
+    const API_BASE = 'http://localhost:5000/api';
+    
+    // Global variables
+    let flight = null;
+    let flightId = null;
+    let selectedSeats = [];
+    let reservedSeats = [];
+    let seatMapData = [];
+    let reservationTimer = null;
+
+    // Initialize
+    function init() {
+      // Get flight data
+      flight = JSON.parse(localStorage.getItem('selectedFlight'));
+      const urlParams = new URLSearchParams(window.location.search);
+      flightId = urlParams.get('flightId') || (flight && flight._id);
+
+      if (!flightId) {
+        showMessage('No flight selected.', 'error');
+        document.getElementById('seatMap').style.display = 'none';
+        return;
+      }
+
+      loadFlightData();
+    }
+
+    // Load flight data
+    function loadFlightData() {
+      showMessage('Loading flight data...', 'success');
+      
+      fetch(`${API_BASE}/flights/${flightId}`)
+        .then(res => res.json())
+        .then(f => {
+          flight = f;
+          displayFlightInfo();
+          loadSeatMap();
+        })
+        .catch(error => {
+          console.error('Error loading flight:', error);
+          showMessage('Could not load flight data.', 'error');
+        });
+    }
+
+    // Display flight information
+    function displayFlightInfo() {
+      document.getElementById('flightInfo').innerHTML = `
+        <div><b>${flight.airline} (${flight.flightNumber})</b></div>
+        <div>${flight.from} ➡️ ${flight.to}</div>
+        <div>Departure: ${new Date(flight.departure).toLocaleString()}</div>
+        <div>Seats Available: <span id="availableCount">${flight.seatsAvailable}</span></div>
+      `;
+    }
+
+    // Load seat map with real-time availability
+    function loadSeatMap() {
+      showMessage('Loading seat availability...', 'success');
+      
+      fetch(`${API_BASE}/flights/${flightId}/seats`)
+        .then(res => res.json())
+        .then(data => {
+          seatMapData = data.seats || flight.seats || [];
+          renderSeatMap();
+          showMessage('Seat map loaded. Select your preferred seats.', 'success');
+        })
+        .catch(error => {
+          console.error('Error loading seat map:', error);
+          showMessage('Could not load seat map. Using cached data.', 'warning');
+          seatMapData = flight.seats || [];
+          renderSeatMap();
+        });
+    }
+
+    // Render seat map
+    function renderSeatMap() {
+      const seatMapDiv = document.getElementById('seatMap');
+      seatMapDiv.innerHTML = '';
+      
+      seatMapData.forEach(seat => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = seat.seatNumber;
+        btn.className = 'seat-btn';
+        btn.dataset.seatNumber = seat.seatNumber;
+        
+        // Set seat state
+        if (seat.isBooked) {
+          btn.classList.add('booked');
+          btn.disabled = true;
+          btn.title = 'This seat is already booked';
+        } else if (seat.isReserved || reservedSeats.includes(seat.seatNumber)) {
+          btn.classList.add('reserved');
+          btn.disabled = true;
+          btn.title = 'This seat is temporarily reserved';
+        } else if (selectedSeats.includes(seat.seatNumber)) {
+          btn.classList.add('selected');
+          btn.title = 'Click to deselect';
+        } else {
+          btn.title = 'Click to select';
+        }
+        
+        btn.onclick = function() {
+          if (!btn.disabled) {
+            toggleSeat(seat.seatNumber, btn);
+          }
+        };
+        
+        seatMapDiv.appendChild(btn);
+      });
+
+      updateButtonStates();
+      updateAvailableCount();
+    }
+
+    // Toggle seat selection
+    function toggleSeat(seatNumber, btnElement) {
+      if (btnElement.classList.contains('selected')) {
+        // Deselect
+        btnElement.classList.remove('selected');
+        selectedSeats = selectedSeats.filter(s => s !== seatNumber);
+        btnElement.title = 'Click to select';
+      } else {
+        // Select
+        btnElement.classList.add('selected');
+        selectedSeats.push(seatNumber);
+        btnElement.title = 'Click to deselect';
+      }
+      
+      updateButtonStates();
+      showMessage(`${selectedSeats.length} seat(s) selected: ${selectedSeats.join(', ')}`, 'success');
+    }
+
+    // Reserve seats temporarily
+    function reserveSeats() {
+      if (selectedSeats.length === 0) {
+        showMessage('Please select at least one seat.', 'error');
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        showMessage('Please sign in to reserve seats.', 'error');
+        return;
+      }
+
+      showMessage('Reserving seats...', 'success');
+      document.getElementById('reserveBtn').disabled = true;
+
+      // Mark seats as being checked
+      selectedSeats.forEach(seatNumber => {
+        const btn = document.querySelector(`[data-seat-number="${seatNumber}"]`);
+        if (btn) {
+          btn.classList.add('checking');
+        }
+      });
+
+      fetch(`${API_BASE}/flights/${flightId}/reserve-seats`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          seatNumbers: selectedSeats
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          reservedSeats = [...selectedSeats];
+          localStorage.setItem('selectedSeats', JSON.stringify(selectedSeats));
+          localStorage.setItem('seatReservationId', data.reservationId);
+          
+          showMessage(`Seats ${selectedSeats.join(', ')} reserved successfully! You have 10 minutes to complete payment.`, 'success');
+          
+          // Update UI
+          selectedSeats.forEach(seatNumber => {
+            const btn = document.querySelector(`[data-seat-number="${seatNumber}"]`);
+            if (btn) {
+              btn.classList.remove('checking', 'selected');
+              btn.classList.add('reserved');
+              btn.disabled = true;
+              btn.title = 'Reserved for you';
+            }
+          });
+
+          document.getElementById('proceedBtn').disabled = false;
+          
+          // Start reservation timer (10 minutes)
+          startReservationTimer();
+          
+        } else {
+          // Handle seat unavailability
+          showMessage(data.message || 'Some seats are no longer available.', 'error');
+          
+          // Refresh seat map to show current availability
+          setTimeout(() => {
+            refreshSeatMap();
+          }, 1000);
+        }
+      })
+      .catch(error => {
+        console.error('Reservation error:', error);
+        showMessage('Failed to reserve seats. Please try again.', 'error');
+        
+        // Remove checking state
+        selectedSeats.forEach(seatNumber => {
+          const btn = document.querySelector(`[data-seat-number="${seatNumber}"]`);
+          if (btn) {
+            btn.classList.remove('checking');
+          }
+        });
+      })
+      .finally(() => {
+        document.getElementById('reserveBtn').disabled = false;
+      });
+    }
+
+    // Start reservation timer
+    function startReservationTimer() {
+      const duration = 10 * 60 * 1000; // 10 minutes
+      const startTime = Date.now();
+      
+      reservationTimer = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, duration - elapsed);
+        
+        if (remaining === 0) {
+          clearInterval(reservationTimer);
+          showMessage('Seat reservation expired. Please select seats again.', 'warning');
+          refreshSeatMap();
+        } else {
+          const minutes = Math.floor(remaining / 60000);
+          const seconds = Math.floor((remaining % 60000) / 1000);
+          document.getElementById('proceedBtn').textContent = 
+            `Proceed to Payment (${minutes}:${seconds.toString().padStart(2, '0')})`;
+        }
+      }, 1000);
+    }
+
+    // Refresh seat map
+    function refreshSeatMap() {
+      selectedSeats = [];
+      reservedSeats = [];
+      if (reservationTimer) {
+        clearInterval(reservationTimer);
+      }
+      loadSeatMap();
+    }
+
+    // Proceed to payment
+    function proceedToPayment() {
+      if (reservedSeats.length === 0) {
+        showMessage('Please reserve seats first.', 'error');
+        return;
+      }
+      
+      // Navigate to payment page
+      window.location.href = 'transaction.html';
+    }
+
+    // Update button states
+    function updateButtonStates() {
+      document.getElementById('reserveBtn').disabled = selectedSeats.length === 0 || reservedSeats.length > 0;
+      document.getElementById('proceedBtn').disabled = reservedSeats.length === 0;
+    }
+
+    // Update available seat count
+    function updateAvailableCount() {
+      const availableSeats = seatMapData.filter(seat => !seat.isBooked && !seat.isReserved).length;
+      const countElement = document.getElementById('availableCount');
+      if (countElement) {
+        countElement.textContent = availableSeats;
+      }
+    }
+
+    // Show message
+    function showMessage(message, type = 'success') {
+      const msgElement = document.getElementById('msg');
+      msgElement.textContent = message;
+      msgElement.className = `msg ${type}`;
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', init);
+
+    // Auto-refresh every 30 seconds to show real-time availability
+    setInterval(() => {
+      if (reservedSeats.length === 0) {
+        loadSeatMap();
+      }
+    }, 30000);
+  </script>
+</body>
+</html>

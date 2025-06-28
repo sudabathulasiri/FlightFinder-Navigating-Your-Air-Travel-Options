@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FlightFinder Search</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+    }
+    body {
+      background: #f9fafb;
+      color: #222;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 80px auto 0 auto; /* Add top margin (e.g., 80px) */
+      padding: 0 20px;
+    }
+    header {
+      background: rgba(255,255,255,0.85);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      border-radius: 0 0 20px 20px;
+      padding: 24px 0 0 0;
+      margin-bottom: 40px;
+    }
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      color: #ff6b35;
+      letter-spacing: 1px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .search-form-container {
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+      border: 1.5px solid #f3f4f6;
+      padding: 32px 24px 24px 24px;
+      margin: 0 auto 32px auto;
+      max-width: 2500px;      /* Increased from 700px */
+      position: relative;
+      z-index: 2;
+    }
+    .search-form {
+      display: flex;
+      gap: 16px;
+      flex-wrap: nowrap;      /* Prevents wrapping to new line */
+      align-items: end;
+      justify-content: center;
+    }
+    .search-form input, .search-form select {
+      padding: 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: border-color 0.3s;
+      min-width: 140px;
+      background: #fff;
+      color: #222;
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+    .search-form input:focus, .search-form select:focus {
+      outline: none;
+      border-color: #ff6b35;
+    }
+    .search-form button {
+      background: #ff6b35;
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-size: 15px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .search-form button:hover {
+      background: #e5552a;
+    }
+    #loading {
+      text-align: center;
+      margin-top: 2rem;
+      color: #ff6b35;
+      font-size: 1.2rem;
+      display: none;
+    }
+    .flight-card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      padding: 28px 24px;
+      margin: 28px auto;
+      max-width: 600px;
+      transition: 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1.5px solid #f3f4f6;
+    }
+    .flight-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      border-color: #ff6b35;
+    }
+    .flight-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .flight-info h2 {
+      margin: 0 0 8px 0;
+      font-size: 20px;
+      color: #ff6b35;
+      font-weight: 700;
+    }
+    .flight-info p {
+      margin: 0 0 4px 0;
+      color: #444;
+      font-size: 15px;
+    }
+    .seats-left {
+      font-size: 1.1rem;
+      color: #ff6b35;
+      font-weight: 600;
+    }
+    .flight-price h3 {
+      margin: 0;
+      font-size: 24px;
+      color: #222;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .travel-tips-section {
+      margin: 48px auto 0 auto;
+      padding: 40px 0 0 0;
+      background: none;
+      max-width: 900px;
+    }
+    .travel-tips-section h2 {
+      text-align: center;
+      font-size: 28px;
+      color: #ff6b35;
+      margin-bottom: 28px;
+      font-weight: 700;
+    }
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 28px;
+    }
+    .tip-card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      padding: 24px 18px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .tip-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    .tip-card h3 {
+      color: #ff6b35;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .tip-card p {
+      color: #444;
+      font-size: 15px;
+    }
+    .main-content {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+      margin-top: 32px;
+    }
+    .sidebar {
+      width: 260px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      padding: 24px 18px;
+      font-size: 15px;
+      position: sticky;
+      top: 32px;
+      height: fit-content;
+    }
+    .sidebar h3, .sidebar h4 {
+      color: #ff6b35;
+      margin-bottom: 12px;
+      font-size: 18px;
+    }
+    .sidebar label {
+      display: block;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .promo {
+      background: #fff7f1;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 24px;
+      text-align: center;
+      color: #ff6b35;
+      font-weight: 600;
+    }
+    .results-area {
+      flex: 1;
+      min-width: 0;
+    }
+    .popular-routes ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 18px 0;
+    }
+    .popular-routes li {
+      padding: 6px 0;
+      font-size: 15px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .popular-routes li:last-child {
+      border-bottom: none;
+    }
+    .payment-options {
+      margin-top: 28px;
+    }
+    .payment-options h3 {
+      color: #ff6b35;
+      margin-bottom: 12px;
+      font-size: 18px;
+    }
+    .payment-options ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .payment-options li {
+      padding: 6px 0;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    @media (max-width: 900px) {
+      .main-content {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        margin-bottom: 24px;
+        position: static;
+      }
+    }
+    @media (max-width: 700px) {
+      .search-form-container {
+        padding: 18px 8px;
+      }
+      .flight-card {
+        padding: 18px 8px;
+      }
+      .container {
+        padding: 0 6px;
+      }
+      .main-content {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        max-width: none;
+        border-radius: 0;
+        padding: 16px;
+      }
+    }
+    @media (max-width: 500px) {
+      .search-form {
+        flex-direction: column;
+        gap: 16px;
+      }
+      .flight-details {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+    .header {
+      width: 100%;
+      background: #fff;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      margin-bottom: 40px;
+    }
+    .header-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+    }
+    .logo {
+      font-size: 26px;
+      font-weight: 700;
+      color: #ff6b35;
+      letter-spacing: 1px;
+    }
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 32px;
+    }
+    .nav-links a {
+      color: #222;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.3s;
+    }
+    .nav-links a:hover {
+      opacity: 0.7;
+    }
+    .auth-buttons {
+      display: flex;
+      gap: 12px;
+    }
+    .signin-btn, .signup-btn {
+      padding: 8px 20px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    .signin-btn {
+      color: #ff6b35;
+      border: 1px solid #ff6b35;
+      background: #fff;
+    }
+    .signup-btn {
+      background: #ff6b35;
+      color: #fff;
+    }
+    .signin-btn:hover {
+      background: #ff6b35;
+      color: #fff;
+    }
+    .signup-btn:hover {
+      background: #e5552a;
+    }
+    .input-group {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 140px;
+  max-width: 220px; /* Prevents growing too wide */
+}
+    .autocomplete-items {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  border: 1px solid #d4d4d4;
+  border-top: none;
+  background: #fff;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+    </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">FlightFinder</div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="app.html">Home</a></li>
+          <li><a href="flights.html">Flights</a></li>
+          <li><a href="offers.html">Offers</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="support.html">Support</a></li>
+        </ul>
+      </nav>
+      <div class="auth-buttons">
+        <a href="signin.html" class="signin-btn">Sign in</a>
+        <a href="signup.html" class="signup-btn">Sign up</a>
+      </div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="search-form-container">
+      <!-- Replace your form inputs with this structure -->
+<form id="search-form" class="search-form">
+  <div class="input-group">
+    <input type="text" id="from" placeholder="From" required />
+  </div>
+  <div class="input-group">
+    <input type="text" id="to" placeholder="To" required />
+  </div>
+  <div class="input-group">
+    <input type="date" id="date" required />
+  </div>
+  <div class="input-group">
+    <select id="class" required>
+      <option value="economy">Economy</option>
+      <option value="business">Business</option>
+      <option value="first">First</option>
+    </select>
+  </div>
+  <div class="input-group">
+    <input type="number" id="passengers" min="1" value="1" required placeholder="Passengers" />
+  </div>
+  <button type="submit">Search</button>
+</form>
+    </div>
+    <div id="loading">🔄 Loading flights...</div>
+    <div class="main-content">
+      <aside class="sidebar">
+        <div class="popular-routes">
+          <h3>Popular Routes</h3>
+          <ul>
+            <li>Delhi <span style="color:#ff6b35;">→</span> Mumbai</li>
+            <li>Bangalore <span style="color:#ff6b35;">→</span> Hyderabad</li>
+            <li>Chennai <span style="color:#ff6b35;">→</span> Delhi</li>
+            <li>Kolkata <span style="color:#ff6b35;">→</span> Bangalore</li>
+            <li>Mumbai <span style="color:#ff6b35;">→</span> Goa</li>
+          </ul>
+        </div>
+        <div class="filters">
+          <h3>Filters</h3>
+          <label><input type="checkbox" id="direct-flights"> Direct Flights Only</label>
+          <label><input type="checkbox" id="morning-flights"> Morning Departures</label>
+          <label><input type="checkbox" id="evening-flights"> Evening Departures</label>
+        </div>
+        <div class="payment-options">
+          <h3>Payment Options</h3>
+          <ul>
+            <li><span style="color:#ff6b35;">💳</span> Credit/Debit Card</li>
+            <li><span style="color:#ff6b35;">📱</span> UPI & Wallets</li>
+            <li><span style="color:#ff6b35;">🏦</span> Net Banking</li>
+            <li><span style="color:#ff6b35;">💵</span> Pay at Airport</li>
+          </ul>
+        </div>
+        <div class="promo">
+          <h4>Special Offer</h4>
+          <p>Use code <b>FLY10</b> for 10% off!</p>
+        </div>
+      </aside>
+      <div class="results-area">
+        <div id="flight-container"></div>
+        <!-- Travel Tips & Guides Section here if you want -->
+      </div>
+    </div>
+    <!-- Travel Tips & Guides Section -->
+    <section class="travel-tips-section">
+      <h2>✈️ Travel Tips & Guides</h2>
+      <div class="tips-grid">
+        <div class="tip-card">
+          <h3>Book Early for Best Prices</h3>
+          <p>Plan ahead and book your flights in advance to get the lowest fares and best seat options.</p>
+        </div>
+        <div class="tip-card">
+          <h3>Pack Smart</h3>
+          <p>Make a checklist and pack only what you need. Remember to check airline baggage rules before you fly.</p>
+        </div>
+        <div class="tip-card">
+          <h3>Stay Updated</h3>
+          <p>Always check your flight status and airport guidelines before leaving for your journey.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+document.getElementById('search-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const from = document.getElementById('from').value.trim();
+  const to = document.getElementById('to').value.trim();
+  const date = document.getElementById('date').value;
+  const travelClass = document.getElementById('class').value;
+  const passengers = document.getElementById('passengers').value;
+  if (!from || !to || !date) {
+    alert('Please fill all fields');
+    return;
+  }
+  window.location.search = `?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${encodeURIComponent(date)}&class=${encodeURIComponent(travelClass)}&passengers=${encodeURIComponent(passengers)}`;
+});
+
+window.addEventListener('DOMContentLoaded', async function() {
+  const params = new URLSearchParams(window.location.search);
+  const from = params.get('from');
+  const to = params.get('to');
+  const date = params.get('date');
+  const resultsDiv = document.getElementById('flight-container');
+
+  if (!from || !to || !date) {
+    resultsDiv.innerHTML = '<p>Please enter search details above.</p>';
+    return;
+  }
+
+  resultsDiv.innerHTML = '<p>Loading flights...</p>';
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/flights/search?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${encodeURIComponent(date)}`);
+    const flights = await res.json();
+    console.log('Fetched flights:', flights);
+
+    if (!Array.isArray(flights) || flights.length === 0) {
+      // No flights found for this route/date, so show available flights from the selected "from" city
+      resultsDiv.innerHTML = '<p>No flights found for your search. Showing all flights from <b>' + from + '</b>:</p><div id="alt-flights"></div>';
+
+      // Fetch all flights from the backend
+      fetch(`http://localhost:5000/api/flights/all-public`)
+        .then(res => res.json())
+        .then(allFlights => {
+          // Filter flights that match the "from" city (case-insensitive)
+          const fromFlights = allFlights.filter(f => f.from && f.from.trim().toLowerCase() === from.trim().toLowerCase());
+          const altDiv = document.getElementById('alt-flights');
+          if (fromFlights.length === 0) {
+            altDiv.innerHTML = `<p>No flights available from ${from}.</p>`;
+          } else {
+            // ...inside .then(allFlights => { ... })...
+            const travelClass = params.get('class') || 'economy';
+            const passengers = parseInt(params.get('passengers') || '1', 10);
+
+            function getClassMultiplier(travelClass) {
+              if (travelClass === 'business') return 2;
+              if (travelClass === 'first') return 3;
+              return 1; // economy
+            }
+
+            altDiv.innerHTML = fromFlights.map((f, idx) => {
+              const basePrice = f.price;
+              const multiplier = getClassMultiplier(travelClass);
+              const totalPrice = basePrice * multiplier * passengers;
+              let classLabel = travelClass.charAt(0).toUpperCase() + travelClass.slice(1);
+              return `
+                <div class="flight-card" data-idx="${idx}">
+                  <div class="flight-details">
+                    <div class="flight-info">
+                      <h2>${f.airline} (${f.flightNumber})</h2>
+                      <p>${f.from} ➡️ ${f.to}</p>
+                      <p>${formatTime(f.departure)} ⏰ ${formatTime(f.arrival)}</p>
+                      <p class="seats-left">Seats Left: ${f.seatsAvailable}</p>
+                      <p>Class: <b>${classLabel}</b> &nbsp;|&nbsp; Passengers: <b>${passengers}</b></p>
+                    </div>
+                    <div class="flight-price">
+                      <div style="font-size:15px;color:#888;">
+                        Base Price: <s>₹${basePrice}</s>
+                      </div>
+                      <h3 style="margin:4px 0 0 0;">
+                        Total: ₹${totalPrice}
+                      </h3>
+                      <div style="font-size:13px;color:#888;">
+                        (${multiplier}x for ${classLabel}${passengers > 1 ? `, ×${passengers} passengers` : ''})
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+            // Add click event to each alternative card
+            document.querySelectorAll('#alt-flights .flight-card').forEach((card, idx) => {
+              card.addEventListener('click', function() {
+                localStorage.setItem('selectedFlight', JSON.stringify(fromFlights[idx]));
+                localStorage.setItem('selectedClass', travelClass);
+                localStorage.setItem('selectedPassengers', passengers);
+                window.location.href = `selectedseats.html?flightId=${fromFlights[idx]._id}`;
+              });
+            });
+          }
+        })
+        .catch(() => {
+          document.getElementById('alt-flights').innerHTML = '<p style="color:red;">Could not load alternative flights.</p>';
+        });
+    } else {
+      // ...existing code...
+      const travelClass = params.get('class') || 'economy';
+      const passengers = parseInt(params.get('passengers') || '1', 10);
+
+      function getClassMultiplier(travelClass) {
+        if (travelClass === 'business') return 2;
+        if (travelClass === 'first') return 3;
+        return 1; // economy
+      }
+
+      resultsDiv.innerHTML = flights.map((f, idx) => {
+        const basePrice = f.price;
+        const multiplier = getClassMultiplier(travelClass);
+        const totalPrice = basePrice * multiplier * passengers;
+        let classLabel = travelClass.charAt(0).toUpperCase() + travelClass.slice(1);
+        return `
+          <div class="flight-card" data-idx="${idx}">
+            <div class="flight-details">
+              <div class="flight-info">
+                <h2>${f.airline} (${f.flightNumber})</h2>
+                <p>${f.from} ➡️ ${f.to}</p>
+                <p>${formatTime(f.departure)} ⏰ ${formatTime(f.arrival)}</p>
+                <p class="seats-left">Seats Left: ${f.seatsAvailable}</p>
+                <p>Class: <b>${classLabel}</b> &nbsp;|&nbsp; Passengers: <b>${passengers}</b></p>
+              </div>
+              <div class="flight-price">
+                <div style="font-size:15px;color:#888;">
+                  Base Price: <s>₹${basePrice}</s>
+                </div>
+                <h3 style="margin:4px 0 0 0;">
+                  Total: ₹${totalPrice}
+                </h3>
+                <div style="font-size:13px;color:#888;">
+                  (${multiplier}x for ${classLabel}${passengers > 1 ? `, ×${passengers} passengers` : ''})
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      // Add click event to each card
+      document.querySelectorAll('.flight-card').forEach((card, idx) => {
+        card.addEventListener('click', function() {
+          // Check if user is signed in (for example, by checking for a token)
+          const token = localStorage.getItem('token');
+          if (!token) {
+            // Not signed in: prompt and redirect
+            if (confirm('You must sign in to book a flight. Go to sign in page?')) {
+              window.location.href = 'signin.html';
+            }
+            return;
+          }
+          // Signed in: proceed
+          localStorage.setItem('selectedFlight', JSON.stringify(flights[idx]));
+          localStorage.setItem('selectedClass', travelClass);
+          localStorage.setItem('selectedPassengers', passengers);
+          window.location.href = `selectedseats.html?flightId=${flights[idx]._id}`;
+        });
+      });
+    }
+
+  } catch (err) {
+    resultsDiv.innerHTML = '<p style="color:red;">Error fetching flights. Please try again later.</p>';
+    console.error('Fetch error:', err);
+  }
+
+  function formatTime(dateString) {
+    if (!dateString) return "N/A";
+    const d = new Date(dateString);
+    return d.toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+  }
+});
+</script>
+<script src="script.js"></script>
+</body>
+</html>

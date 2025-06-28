@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About - FlightFinder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(120deg, #ffecd2 0%, #fcb69f 100%);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: #222;
+    }
+    .header {
+      width: 100%;
+      background: #fff;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      margin-bottom: 40px;
+    }
+    .header-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+    }
+    .logo {
+      font-size: 26px;
+      font-weight: 700;
+      color: #ff6b35;
+      letter-spacing: 1px;
+    }
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 32px;
+    }
+    .nav-links a {
+      color: #222;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.3s;
+    }
+    .nav-links a:hover {
+      opacity: 0.7;
+    }
+    .auth-buttons {
+      display: flex;
+      gap: 12px;
+    }
+    .signin-btn, .signup-btn {
+      padding: 8px 20px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    .signin-btn {
+      color: #ff6b35;
+      border: 1px solid #ff6b35;
+      background: #fff;
+    }
+    .signup-btn {
+      background: #ff6b35;
+      color: #fff;
+    }
+    .signin-btn:hover {
+      background: #ff6b35;
+      color: #fff;
+    }
+    .signup-btn:hover {
+      background: #e5552a;
+    }
+    .about-section {
+      max-width: 800px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+      padding: 36px 32px;
+    }
+    .about-section h2 {
+      color: #ff6b35;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+    .about-section p {
+      font-size: 17px;
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">FlightFinder</div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="app.html">Home</a></li>
+          <li><a href="flights.html">Flights</a></li>
+          <li><a href="offers.html">Offers</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="support.html">Support</a></li>
+        </ul>
+      </nav>
+      <div class="auth-buttons">
+        <a href="signin.html" class="signin-btn">Sign in</a>
+        <a href="signup.html" class="signup-btn">Sign up</a>
+      </div>
+    </div>
+  </header>
+  <section class="about-section">
+    <h2>About FlightFinder</h2>
+    <p>
+      FlightFinder is your trusted partner for finding the best flight deals, planning your next adventure, and making travel easy and affordable. 
+      Our mission is to simplify the flight booking process and help you discover new destinations with confidence.
+    </p>
+    <p>
+      We work with top airlines and travel partners to bring you exclusive offers, real-time price comparisons, and a seamless booking experience. 
+      Whether you're traveling for business or leisure, FlightFinder is here to help you every step of the way.
+    </p>
+    <p>
+      Thank you for choosing FlightFinder. We look forward to being a part of your journey!
+    </p>
+  </section>
+  <script>
+window.addEventListener('DOMContentLoaded', function() {
+  const token = localStorage.getItem('token');
+  const authButtons = document.querySelector('.auth-buttons');
+  if (token && authButtons) {
+    // Replace auth buttons with a profile dropdown or icon
+    authButtons.innerHTML = `
+      <div class="profile-menu">
+        <span class="profile-icon" style="font-size:22px;vertical-align:middle;cursor:pointer;">👤</span>
+        <div class="profile-dropdown" style="display:none;position:absolute;right:0;background:#fff;border:1px solid #eee;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:10px 0;min-width:120px;z-index:100;">
+          <a href="profile.html" style="display:block;padding:8px 18px;color:#222;text-decoration:none;">My Profile</a>
+          <a href="#" id="logoutBtn" style="display:block;padding:8px 18px;color:#ff6b35;text-decoration:none;">Logout</a>
+        </div>
+      </div>
+    `;
+
+    // Show/hide dropdown on icon click
+    const profileMenu = authButtons.querySelector('.profile-menu');
+    const dropdown = authButtons.querySelector('.profile-dropdown');
+    profileMenu.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    });
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function() {
+      dropdown.style.display = 'none';
+    });
+    // Logout functionality
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem('token');
+      window.location.reload();
+    });
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FlightFinder Admin</title>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #f9fafb; margin: 0; }
+    .container { max-width: 1100px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #0001; padding: 32px; }
+    h2 { color: #ff6b35; }
+    table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid #eee; text-align: left; }
+    th { background: #f3f4f6; }
+    .btn { background: #ff6b35; color: #fff; border: none; border-radius: 6px; padding: 6px 16px; cursor: pointer; font-size: 14px; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .msg { margin: 18px 0; font-weight: bold; }
+    .success { color: #2e7d32; }
+    .error { color: #d32f2f; }
+    .flight-seats { font-size: 13px; }
+    .reset-btn { background: #b983ff; margin-left: 8px; }
+    .delete-btn { background: #d32f2f; margin-left: 8px; }
+    .csv-btn { background: #00b894; margin-left: 8px; }
+    .add-form { margin: 24px 0; padding: 18px; background: #f9fafb; border-radius: 10px; }
+    .add-form input, .add-form select { margin: 0 8px 8px 0; padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc; }
+    .modal-bg { position: fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.2); display:none; align-items:center; justify-content:center; z-index:1000; }
+    .modal { background:#fff; border-radius:10px; padding:24px; min-width:320px; max-width:90vw; }
+    .modal h3 { margin-top:0; }
+    .close-btn { float:right; background:none; border:none; font-size:18px; color:#d32f2f; cursor:pointer; }
+    .booking-table { margin-top: 12px; }
+    .booking-table th, .booking-table td { font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>Admin Panel - FlightFinder</h2>
+    <button class="btn" id="logoutBtn" style="background:#d32f2f;">Logout</button>
+  </div>
+  <div class="msg" id="msg"></div>
+
+    <!-- Add Flight Form -->
+    <form class="add-form" id="addFlightForm">
+      <h3>Add New Flight</h3>
+      <input type="text" id="airline" placeholder="Airline" required>
+      <input type="text" id="flightNumber" placeholder="Flight Number" required>
+      <input type="text" id="from" placeholder="From" required>
+      <input type="text" id="to" placeholder="To" required>
+      <input type="datetime-local" id="departure" required>
+      <input type="datetime-local" id="arrival" required>
+      <input type="number" id="price" placeholder="Price" min="1" required>
+      <input type="number" id="seatsAvailable" placeholder="Seats" min="1" max="180" required>
+      <button type="submit" class="btn">Add Flight</button>
+    </form>
+
+    <button class="btn csv-btn" onclick="downloadCSV()">Download Flights as CSV</button>
+
+    <table id="flightsTable">
+      <thead>
+        <tr>
+          <th>Flight</th>
+          <th>Route</th>
+          <th>Departure</th>
+          <th>Seats (Booked/Reserved/Total)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Flights will be loaded here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal for Bookings -->
+  <div class="modal-bg" id="modalBg">
+    <div class="modal" id="modalContent">
+      <button class="close-btn" onclick="closeModal()">✖</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+  const API_BASE = 'http://localhost:5000/api';
+
+  function getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  }
+
+  function showMessage(msg, type='success') {
+    const el = document.getElementById('msg');
+    el.textContent = msg;
+    el.className = `msg ${type}`;
+  }
+
+  function loadFlights() {
+    fetch(`${API_BASE}/flights/all`, {
+      headers: getAuthHeaders()
+    })
+      .then(res => res.json())
+      .then(flights => {
+        const tbody = document.querySelector('#flightsTable tbody');
+        tbody.innerHTML = '';
+        flights.forEach(flight => {
+          const booked = flight.seats.filter(s => s.isBooked).length;
+          const reserved = flight.seats.filter(s => s.reservedUntil && new Date(s.reservedUntil) > new Date()).length;
+          const total = flight.seats.length;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><b>${flight.airline}</b> (${flight.flightNumber})</td>
+            <td>${flight.from} ➡️ ${flight.to}</td>
+            <td>${new Date(flight.departure).toLocaleString()}</td>
+            <td class="flight-seats">
+              <span style="color:#2e7d32;">${booked}</span> /
+              <span style="color:#f57c00;">${reserved}</span> /
+              <span>${total}</span>
+            </td>
+            <td>
+              <button class="btn" onclick="viewBookings('${flight._id}')">View Bookings</button>
+              <button class="btn reset-btn" onclick="resetSeats('${flight._id}')">Reset Seats</button>
+              <button class="btn delete-btn" onclick="deleteFlight('${flight._id}')">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(() => showMessage('Failed to load flights.', 'error'));
+  }
+
+  function resetSeats(flightId) {
+    if (!confirm('Are you sure you want to reset all seat bookings and reservations for this flight?')) return;
+    fetch(`${API_BASE}/flights/${flightId}/reset-seats`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        showMessage('Seats reset successfully!', 'success');
+        loadFlights();
+      } else {
+        showMessage(data.message || 'Failed to reset seats.', 'error');
+      }
+    })
+    .catch(() => showMessage('Failed to reset seats.', 'error'));
+  }
+
+  function deleteFlight(flightId) {
+    if (!confirm('Are you sure you want to delete this flight? This cannot be undone.')) return;
+    fetch(`${API_BASE}/flights/${flightId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        showMessage('Flight deleted successfully!', 'success');
+        loadFlights();
+      } else {
+        showMessage(data.message || 'Failed to delete flight.', 'error');
+      }
+    })
+    .catch(() => showMessage('Failed to delete flight.', 'error'));
+  }
+
+  // Add Flight
+  document.getElementById('addFlightForm').onsubmit = function(e) {
+    e.preventDefault();
+    const flight = {
+      airline: document.getElementById('airline').value,
+      flightNumber: document.getElementById('flightNumber').value,
+      from: document.getElementById('from').value,
+      to: document.getElementById('to').value,
+      departure: document.getElementById('departure').value,
+      arrival: document.getElementById('arrival').value,
+      price: parseInt(document.getElementById('price').value, 10),
+      seatsAvailable: parseInt(document.getElementById('seatsAvailable').value, 10)
+    };
+    fetch(`${API_BASE}/flights`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(flight)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        showMessage('Flight added successfully!', 'success');
+        loadFlights();
+        this.reset();
+      } else {
+        showMessage(data.message || 'Failed to add flight.', 'error');
+      }
+    })
+    .catch(() => showMessage('Failed to add flight.', 'error'));
+  };
+
+  // View Bookings
+  function viewBookings(flightId) {
+    fetch(`${API_BASE}/bookings/flight/${flightId}`, {
+      headers: getAuthHeaders()
+    })
+      .then(res => res.json())
+      .then(data => {
+        let html = `<h3>Bookings for Flight</h3>`;
+        if (!data.bookings || data.bookings.length === 0) {
+          html += `<div>No bookings found for this flight.</div>`;
+        } else {
+          html += `<table class="booking-table"><thead>
+            <tr><th>User</th><th>Seats</th><th>Booked At</th></tr>
+            </thead><tbody>`;
+          data.bookings.forEach(b => {
+            html += `<tr>
+              <td>${b.user?.email || 'N/A'}</td>
+              <td>${b.seats.join(', ')}</td>
+              <td>${new Date(b.createdAt).toLocaleString()}</td>
+            </tr>`;
+          });
+          html += `</tbody></table>`;
+        }
+        showModal(html);
+      })
+      .catch(() => showModal('<div style="color:#d32f2f;">Failed to load bookings.</div>'));
+  }
+
+  // Download CSV
+  function downloadCSV() {
+    fetch(`${API_BASE}/flights/all`, {
+      headers: getAuthHeaders()
+    })
+      .then(res => res.json())
+      .then(flights => {
+        let csv = 'Airline,FlightNumber,From,To,Departure,Arrival,Price,SeatsAvailable,Booked,Reserved,Total\n';
+        flights.forEach(f => {
+          const booked = f.seats.filter(s => s.isBooked).length;
+          const reserved = f.seats.filter(s => s.reservedUntil && new Date(s.reservedUntil) > new Date()).length;
+          const total = f.seats.length;
+          csv += `"${f.airline}","${f.flightNumber}","${f.from}","${f.to}","${new Date(f.departure).toLocaleString()}","${new Date(f.arrival).toLocaleString()}",${f.price},${f.seatsAvailable},${booked},${reserved},${total}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'flights.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+  }
+
+  // Modal helpers
+  function showModal(html) {
+    document.getElementById('modalBody').innerHTML = html;
+    document.getElementById('modalBg').style.display = 'flex';
+  }
+  function closeModal() {
+    document.getElementById('modalBg').style.display = 'none';
+  }
+
+  document.getElementById('modalBg').onclick = function(e) {
+    if (e.target === this) closeModal();
+  };
+
+  document.addEventListener('DOMContentLoaded', loadFlights);
+
+  document.getElementById('logoutBtn').onclick = function() {
+  localStorage.removeItem('token');
+  window.location.href = 'admin-login.html'; // or 'signin.html' if you prefer
+};
+  </script>
+</body>
+</html>
