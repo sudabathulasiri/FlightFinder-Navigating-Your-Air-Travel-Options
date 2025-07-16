@@ -1,4 +1,4 @@
-# FlightFinder
+# FlightFinder: Navigating Your Air Travel Options
 
 **FlightFinder** is a modern, responsive web application for searching, booking, and managing flights. It features a beautiful glassmorphism UI, Indian popular destinations, secure authentication, and a complete booking backend with MongoDB.
 
