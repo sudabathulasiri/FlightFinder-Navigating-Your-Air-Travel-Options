@@ -112,6 +112,10 @@ project file/
 ![Signup Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project%20Files/media/Signup.png)
 ![Flights Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project%20Files/media/Flights.png)
 
+### Video Demo
+
+![Watch the Video](https://drive.google.com/file/d/1cIlJCP5ItvKUE_XR2lZmBXlPo6GZkXE6/view?usp=sharing)
+
 ## Contributing
 
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
