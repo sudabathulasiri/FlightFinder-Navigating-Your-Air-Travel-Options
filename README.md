@@ -114,7 +114,7 @@ project file/
 
 ### Video Demo
 
-![Watch the Video](https://drive.google.com/file/d/1cIlJCP5ItvKUE_XR2lZmBXlPo6GZkXE6/view?usp=sharing)
+[Watch the Video](https://drive.google.com/file/d/1cIlJCP5ItvKUE_XR2lZmBXlPo6GZkXE6/view?usp=sharing)
 
 ## Contributing
 
