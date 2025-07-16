@@ -150,10 +150,6 @@ To grant admin privileges to a user, follow these steps after registering the us
    ```
    Replace `your_database_name` with the name of your database and `user_email` with the email of the user.
 
-## License
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
-
 ---
 
 **Made with ❤️ for travelers worldwide.**
