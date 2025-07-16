@@ -30,8 +30,8 @@
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/yourusername/FlightFinder.git
-   cd "project file"   # or cd FlightFinder if that's your folder name
+   git clone https://github.com/sudabathulasiri/FlightFinder.git
+   cd "project_file"   # or cd FlightFinder if that's your folder name
    ```
 
 2. **Set up the backend:**
