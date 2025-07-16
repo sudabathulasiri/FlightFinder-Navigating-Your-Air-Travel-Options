@@ -1,3 +1,3 @@
-## Video Demo
+## Video Demonstration of Project
 
-[Watch the demo video on Google Drive](https://drive.google.com/file/d/1cIlJCP5ItvKUE_XR2lZmBXlPo6GZkXE6/view?usp=sharing)
+(https://drive.google.com/file/d/1cIlJCP5ItvKUE_XR2lZmBXlPo6GZkXE6/view?usp=sharing)
