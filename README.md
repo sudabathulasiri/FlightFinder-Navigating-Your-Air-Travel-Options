@@ -30,7 +30,7 @@
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/sudabathulasiri/FlightFinder.git
+   git clone https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options.git
    cd "project_file"   # or cd FlightFinder if that's your folder name
    ```
 
@@ -107,10 +107,10 @@ project file/
 
 ### Screenshots
 
-![Home Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Home.png)
-![Signin Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Signin.png)
-![Signup Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Signup.png)
-![Flights Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Flights.png)
+![Home Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project%20Files/media/Home.png)
+![Signin Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project%20Files/media/Signin.png)
+![Signup Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project%20Files/media/Signup.png)
+![Flights Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project%20Files/media/Flights.png)
 
 ## Contributing
 
