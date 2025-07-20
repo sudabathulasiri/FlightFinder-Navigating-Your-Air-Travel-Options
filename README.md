@@ -1,4 +1,4 @@
-# FlightFinder: Navigating Your Air Travel Options
+# FlightFinder
 
 **FlightFinder** is a modern, responsive web application for searching, booking, and managing flights. It features a beautiful glassmorphism UI, Indian popular destinations, secure authentication, and a complete booking backend with MongoDB.
 
@@ -30,7 +30,7 @@
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options.git
+   git clone https://github.com/sudabathulasiri/FlightFinder.git
    cd "project_file"   # or cd FlightFinder if that's your folder name
    ```
 
@@ -107,14 +107,20 @@ project file/
 
 ### Screenshots
 
-![Home Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project%20Files/media/Home.png)
-![Signin Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project%20Files/media/Signin.png)
-![Signup Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project%20Files/media/Signup.png)
-![Flights Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project%20Files/media/Flights.png)
+![Home Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Home.png)
+![Signin Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Signin.png)
+![Signup Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Signup.png)
+![Flights Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Flights.png)
 
-### Video Demo
+## Project Documentation
 
-[Watch the Video](https://drive.google.com/file/d/1cIlJCP5ItvKUE_XR2lZmBXlPo6GZkXE6/view?usp=sharing)
+Documentation for ideation phase, project planning, and the final report is available in the following Google Drive folder:
+
+[Project Documentation (Google Drive)](https://drive.google.com/drive/folders/1aR2JAxJjbCmPphugUMOcVuGwxhKTJ_ZD?usp=sharing)
+
+---
+
+*Access detailed reports, planning documents, and additional resources here.*
 
 ## Contributing
 
@@ -153,6 +159,10 @@ To grant admin privileges to a user, follow these steps after registering the us
    db.users.updateOne({ email: "user_email" }, { $set: { role: "admin" } })
    ```
    Replace `your_database_name` with the name of your database and `user_email` with the email of the user.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
