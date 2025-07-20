@@ -116,7 +116,7 @@ project file/
 
 Documentation for ideation phase, project planning, and the final report is available in the following Google Drive folder:
 
-[Project Documentation (Google Drive)](https://drive.google.com/drive/folders/1aR2JAxJjbCmPphugUMOcVuGwxhKTJ_ZD?usp=sharing)
+[Project Documentation (Google Drive)](https://drive.google.com/your-link-here)
 
 ---
 
