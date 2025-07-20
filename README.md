@@ -19,6 +19,13 @@
 - **Backend**: Node.js, Express.js, MongoDB (Mongoose)
 - **Authentication**: JWT
 
+## Project Documentation
+
+Documentation for ideation phase, project planning, and the final report is available in the following Google Drive folder:
+
+[Project Documentation (Google Drive)](https://drive.google.com/drive/folders/1aR2JAxJjbCmPphugUMOcVuGwxhKTJ_ZD?usp=sharing)
+
+
 ## Getting Started
 
 ### Prerequisites
@@ -30,7 +37,7 @@
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/sudabathulasiri/FlightFinder.git
+   git clone https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options.git
    cd "project_file"   # or cd FlightFinder if that's your folder name
    ```
 
@@ -107,16 +114,10 @@ project file/
 
 ### Screenshots
 
-![Home Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Home.png)
-![Signin Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Signin.png)
-![Signup Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Signup.png)
-![Flights Page](https://github.com/sudabathulasiri/FlightFinder/blob/main/Project_Files/media/Flights.png)
-
-## Project Documentation
-
-Documentation for ideation phase, project planning, and the final report is available in the following Google Drive folder:
-
-[Project Documentation (Google Drive)](https://drive.google.com/your-link-here)
+![Home Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project_Files/media/Home.png)
+![Signin Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project_Files/media/Signin.png)
+![Signup Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project_Files/media/Signup.png)
+![Flights Page](https://github.com/sudabathulasiri/FlightFinder-Navigating-Your-Air-Travel-Options/blob/main/Project_Files/media/Flights.png)
 
 ---
 
